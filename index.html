@@ -24,6 +24,61 @@
             cursor: pointer !important; 
         }
 
+        #ybot-tooltip {
+            position: fixed;
+            bottom: 105px; 
+            right: 30px;
+            background-color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            font-family: 'Raleway', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            z-index: 9998; 
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: floatUp 0.5s ease-out forwards;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        @keyframes floatUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        #ybot-tooltip::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            right: 25px;
+            border-width: 8px 8px 0;
+            border-style: solid;
+            border-color: white transparent transparent transparent;
+        }
+
+        #ybot-tooltip-close {
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2px;
+            transition: color 0.2s;
+        }
+        
+        #ybot-tooltip-close:hover {
+            color: #e74c3c; 
+        }
+
         #ybot-trigger {
             position: fixed;
             bottom: 25px;
@@ -442,6 +497,11 @@
         </footer>
     </div>
 
+    <div id="ybot-tooltip">
+        <span>Tire sua dúvida</span>
+        <button id="ybot-tooltip-close"><i class="fas fa-times"></i></button>
+    </div>
+
     <button id="ybot-trigger" title="Falar com o Ybot">
         <img src="dfdf.png" alt="Ybot Logo" />
     </button>
@@ -490,12 +550,15 @@
             const sendBtn = document.getElementById('ybot-send');
             const inputField = document.getElementById('ybot-input');
             const messagesArea = document.getElementById('ybot-messages');
+            const tooltip = document.getElementById('ybot-tooltip');
+            const tooltipClose = document.getElementById('ybot-tooltip-close');
 
             trigger.addEventListener('click', (e) => {
                 e.stopPropagation(); 
                 container.classList.toggle('active');
                 if (container.classList.contains('active')) {
                     inputField.focus();
+                    tooltip.style.display = 'none'; 
                 }
             });
 
@@ -504,7 +567,16 @@
                 container.classList.remove('active');
             });
 
+            tooltipClose.addEventListener('click', (e) => {
+                e.stopPropagation();
+                tooltip.style.display = 'none';
+            });
+
             container.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+
+            tooltip.addEventListener('click', (e) => {
                 e.stopPropagation();
             });
 
