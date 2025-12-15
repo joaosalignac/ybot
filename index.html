@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <!-- REMOVIDO: <base href="..."> para permitir carregar imagens locais (Logo.png/Letra.png) -->
+    
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instituto Federal do Amazonas - Com Ybot</title>
+
+    <!-- Fontes e Ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:300,400,500,600,700,800,900&display=swap"/>
+    
+    <!-- CSS Original do Site (Agora com caminhos absolutos para não quebrar sem o <base>) -->
+    <link rel="stylesheet" href="https://portal.ifam.edu.br/static/rawline/css/rawline.5996be5b672c.css"/>
+    <link rel="stylesheet" href="https://portal.ifam.edu.br/static/node_modules/@govbr-ds/core/dist/core.min.27d4e9eae8a4.css" />
+    <link rel="stylesheet" href="https://portal.ifam.edu.br/static/css/portal.fdba2194f3f8.css" />
+
+    <style>
+        /* Correção forçada original */
+        body { overflow-x: hidden; }
+        .br-menu.active { display: none; }
+
+        /* Bloqueio visual de links (cursor padrão em vez de mãozinha) para elementos do site fundo */
+        a:not(#ybot-container a):not(#ybot-trigger) {
+            cursor: default !important;
+            pointer-events: none; /* Garante que não sejam clicáveis */
+        }
+        /* Reativar pointer events apenas para mostrar que existe texto, mas sem clique de link */
+        .br-header a, .br-footer a, .main-content a {
+            pointer-events: auto !important; 
+            cursor: pointer !important; /* Mantém a "mãozinha" para parecer real, mas o JS bloqueia */
+        }
+
+        /* =========================================
+           ESTILOS DO YBOT (POLIDO & INDEPENDENTE)
+           ========================================= */
+        
+        /* Botão Flutuante (O ícone do robô) */
+        #ybot-trigger {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            width: 70px; /* Um pouco maior para caber o logo */
+            height: 70px;
+            background-color: #008000; /* Verde IFAM */
+            color: white;
+            border-radius: 50%;
+            border: none;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+            cursor: pointer;
+            z-index: 9999;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden; /* Para imagem não sair */
+            padding: 10px; /* Espaço interno para o logo */
+        }
+
+        #ybot-trigger img {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+        }
+
+        #ybot-trigger:hover {
+            transform: scale(1.1) rotate(5deg);
+            background-color: #006400;
+        }
+
+        /* Janela do Chat - Container Principal */
+        #ybot-container {
+            position: fixed;
+            bottom: 110px; /* Acima do botão */
+            right: 25px;
+            width: 360px;
+            height: 550px;
+            background: transparent;
+            z-index: 9999;
+            display: flex; 
+            flex-direction: column;
+            font-family: 'Raleway', sans-serif;
+            border: none;
+            
+            /* Estado Inicial: Invisível */
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px) scale(0.95);
+            pointer-events: none; 
+            
+            transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        #ybot-container.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+            pointer-events: all;
+        }
+
+        /* Cabeçalho do Chat - Pílula Verde */
+        #ybot-header {
+            background-color: #008000;
+            color: white;
+            padding: 10px 20px; /* Ajustado para as imagens */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 50px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            margin-bottom: 15px;
+            flex-shrink: 0;
+            height: 70px; /* Altura fixa para alinhar logos */
+        }
+
+        #ybot-header .title-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            height: 100%;
+        }
+
+        /* Ajuste das Imagens no Header */
+        #ybot-header .logo-icon {
+            height: 45px; /* Tamanho do Logo.png */
+            width: auto;
+        }
+
+        #ybot-header .logo-text {
+            height: 35px; /* Tamanho do Letra.png */
+            width: auto;
+            margin-top: 5px; /* Ajuste fino de alinhamento visual */
+        }
+
+        /* Botão Fechar */
+        #ybot-header .close-btn {
+            background: transparent;
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: all 0.2s ease;
+            padding: 0;
+        }
+        
+        #ybot-header .close-btn:hover {
+            background: rgba(255,255,255,1);
+            color: #008000;
+            border-color: white;
+            transform: rotate(90deg);
+        }
+
+        /* Wrapper do Corpo Branco */
+        #ybot-body {
+            background: white;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-radius: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            overflow: hidden; 
+        }
+
+        /* Área das Mensagens */
+        #ybot-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: #e6e6e6; 
+            background-image: radial-gradient(#c2c2c2 1.5px, transparent 1.5px);
+            background-size: 20px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Balões de Mensagem */
+        .message {
+            max-width: 80%;
+            padding: 12px 18px;
+            border-radius: 20px;
+            font-size: 14px;
+            line-height: 1.5;
+            word-wrap: break-word;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            position: relative;
+        }
+
+        .message.bot {
+            background-color: #ffffff;
+            color: #333;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            border: 1px solid #eee;
+        }
+
+        .message.user {
+            background-color: #008000;
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        /* Área de Input */
+        #ybot-input-area {
+            padding: 15px 20px;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            background: white;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #ybot-input {
+            flex: 1;
+            border: 1px solid #e0e0e0;
+            background-color: #f8f9fa;
+            border-radius: 25px;
+            padding: 12px 20px;
+            outline: none;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        #ybot-input:focus {
+            border-color: #008000;
+            background-color: white;
+        }
+
+        #ybot-send {
+            background: #008000;
+            border: none;
+            color: white;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: background 0.2s;
+            box-shadow: 0 2px 5px rgba(0,128,0,0.2);
+        }
+
+        #ybot-send:hover {
+            background: #006400;
+            transform: scale(1.05);
+        }
+
+        /* Scrollbar */
+        #ybot-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+        #ybot-messages::-webkit-scrollbar-thumb {
+            background-color: rgba(0,0,0,0.1);
+            border-radius: 3px;
+        }
+
+        /* Responsividade */
+        @media (max-width: 480px) {
+            #ybot-container {
+                width: 90%;
+                right: 5%;
+                bottom: 100px;
+                height: 70vh;
+            }
+        }
+    </style>
+</head>
+
+<body class="template-default">
+
+    <div class="template-base">
+        <!-- HEADER ORIGINAL -->
+        <header class="br-header mb-4" id="header" data-sticky="data-sticky">
+            <div class="container-fluid">
+                <div class="header-top">
+                    <div class="header-logo">
+                        <a href="javascript:void(0);">
+                            <img src="https://s3.sa-east-1.amazonaws.com/files.ifam.edu.br/images/500px-Instituto_Federal_do_Amazonas_transparente.png" alt="logo"/>
+                        </a>
+                    </div>
+                    <div class="header-actions">
+                        <div class="header-links dropdown">
+                            <button class="br-button circle small" type="button" aria-label="Abrir Acesso Rápido"><i class="fas fa-ellipsis-v"></i></button>
+                        </div>
+                        <span class="br-divider vertical mx-half mx-sm-1"></span>
+                        <div class="header-functions dropdown">
+                            <button class="br-button circle small" type="button"><i class="fas fa-th"></i></button>
+                        </div>
+                        <div class="header-search-trigger">
+                            <button class="br-button circle" type="button"><i class="fas fa-search"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="header-bottom">
+                    <div class="header-menu">
+                        <div class="header-menu-trigger" id="header-navigation">
+                            <button class="br-button small circle" type="button" id="navigation"><i class="fas fa-bars"></i></button>
+                        </div>
+                        <div class="header-info">
+                            <div class="header-title"><a href="javascript:void(0);">Instituto Federal do Amazonas</a></div>
+                            <div class="header-subtitle">Ministério da Educação</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN CONTENT ORIGINAL -->
+        <main class="d-flex flex-fill mb-5" id="main">
+            <div class="container-fluid d-flex mt-10" style="width: 90%;">
+                
+                <div class="br-menu push large col-sm-4 col-lg-3" id="main-navigation">
+                    <div class="menu-container">
+                        <div class="menu-panel">
+                            <div class="menu-header">
+                                <div class="menu-title">
+                                    <img src="https://s3.sa-east-1.amazonaws.com/files.ifam.edu.br/images/500px-Instituto_Federal_do_Amazonas_transparente.png" alt="logo"/>
+                                    <span>Ministério da Educação</span>
+                                </div>
+                                <div class="menu-close">
+                                    <button class="br-button circle" type="button"><i class="fas fa-times"></i></button>
+                                </div>
+                            </div>
+                            <nav class="menu-body" role="tree">
+                                <div class="menu-folder">
+                                    <a class="menu-item" href="javascript:void(0)">
+                                        <span class="icon"><i class="fas fa-home"></i></span>
+                                        <span class="content">Estude no IFAM (Menu Exemplo)</span>
+                                    </a>
+                                    <ul>
+                                        <li><a class="menu-item" href="javascript:void(0);"><span class="content">Entenda as cotas</span></a></li>
+                                        <li><a class="menu-item" href="javascript:void(0);"><span class="content">Tipos de cursos</span></a></li>
+                                    </ul>
+                                </div>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-12">
+                            <nav class="br-breadcrumb">
+                                <ol class="crumb-list" role="list">
+                                    <li class="crumb home"><a class="br-button circle" href="javascript:void(0);"><i class="fas fa-home"></i></a></li>
+                                    <li class="crumb"><i class="icon fas fa-chevron-right"></i><a href="javascript:void(0);">Estude no IFAM</a></li>
+                                    <li class="crumb" data-active="active"><i class="icon fas fa-chevron-right"></i><a href="javascript:void(0);">Processo Seletivo 2026</a></li>
+                                </ol>
+                            </nav>
+                        </div>
+                    </div>
+
+                    <div class="main-content pl-sm-3 mt-4" id="main-content">
+                        
+                        <div class="block-banner mb-2">
+                            <div class="banner-container">
+                                <div class="container-fluid px-0">
+                                    <div class="banner-image-wrapper">
+                                        <!-- CAMINHO ABSOLUTO -->
+                                        <img alt="" class="img-fluid banner-image" style="width:100%" src="https://portal.ifam.edu.br/media/images/2_rR3cj23.format-jpeg.width-1920.jpg">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="block-rich_text mb-2">
+                            <p class="text-left">Aqui você encontrará o caminho para todas as <b>formas e modalidades de ensino oferecidas</b>, com as informações necessárias para participar e ingressar em nossa instituição.</p>
+                        </div>
+
+                        <div class="block-header mb-2">
+                            <div class="container-fluid px-0">
+                                <div class="header-block column col-12 my-0" style="padding: 10px; border-top: 2px solid #f2b32c; background-color: #f8f8f8;">
+                                    <h4 style="margin:0;">Seu futuro começa aqui. Acesso às páginas de cada edital a seguir:</h4>       
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="block-divider mb-2"><span class="br-divider sm my-3" style="border-color: green;"></span></div>
+
+                        <div class="block-grid_row mb-2">
+                            <div class="row my-1 g-2">
+                                <div class="col-12 col-md-6">
+                                    <div class="my-1">
+                                        <div class="linked-image-wrapper">
+                                            <a href="javascript:void(0);" class="d-block">
+                                                <!-- CAMINHO ABSOLUTO -->
+                                                <img alt="Botão Novas Chamadas" class="img-fluid rounded w-100" src="https://portal.ifam.edu.br/media/images/botao_-_novas_chamadas.format-jpeg.jpg">
+                                            </a>
+                                        </div>
+                                        <div class="py-2 w-100">
+                                            <div class="br-magic-button" style="width: 100%;">
+                                                <a class="br-button block magic text w-100 text-center" href="javascript:void(0);">Saiba mais</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="my-1">
+                                        <div class="linked-image-wrapper">
+                                            <!-- CAMINHO ABSOLUTO -->
+                                            <img alt="Logo Integrado" class="img-fluid rounded w-100" src="https://portal.ifam.edu.br/media/images/2_baY3k2v.format-jpeg.jpg">
+                                        </div>
+                                        <div class="py-2 w-100">
+                                            <div class="br-magic-button" style="width: 100%;">
+                                                <a class="br-button block magic text w-100 text-center" href="javascript:void(0);">Saiba mais</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <div class="my-1">
+                                        <div class="linked-image-wrapper">
+                                            <!-- CAMINHO ABSOLUTO -->
+                                            <img alt="Logo PSD" class="img-fluid rounded w-100" src="https://portal.ifam.edu.br/media/images/6_3Q6frLr.format-jpeg.jpg">
+                                        </div>
+                                        <div class="py-2 w-100">
+                                            <div class="br-magic-button" style="width: 100%;">
+                                                <a class="br-button block magic text w-100 text-center" href="javascript:void(0);">Saiba mais</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="my-1">
+                                        <div class="linked-image-wrapper">
+                                            <!-- CAMINHO ABSOLUTO -->
+                                            <img alt="Logo Proeja" class="img-fluid rounded w-100" src="https://portal.ifam.edu.br/media/images/3_LObep8P.format-jpeg.jpg">
+                                        </div>
+                                        <div class="py-2 w-100">
+                                            <div class="br-magic-button" style="width: 100%;">
+                                                <a class="br-button block magic text w-100 text-center" href="javascript:void(0);">Saiba mais</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="block-accordion mb-2 mt-4">
+                            <div class="br-accordion" id="accordion1">
+                                <div class="accordion-item">
+                                    <button class="accordion-header" type="button"><span class="accordion-icon">+</span><span class="accordion-title">Deseja concorrer para cursos técnicos?</span></button>
+                                    <div class="accordion-content">
+                                        <div class="accordion-body"><p>A seleção considerará as médias finais de disciplinas...</p></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    </div>
+            </div>
+        </main>
+
+        <!-- FOOTER ORIGINAL -->
+        <footer class="br-footer">
+            <div class="container-lg">
+                <div class="logo">
+                    <!-- CAMINHO ABSOLUTO -->
+                    <img alt="logo-footer" src="https://portal.ifam.edu.br/media/original_images/2025.ago_br_govfederal_manual-de-uso_v1.2-4.webp" style="max-width: 180px;" />
+                </div>
+                <div class="br-list horizontal">
+                    <div class="col-2"><a class="br-item header" href="javascript:void(0)"><div class="content text-bold">Instituição</div></a></div>
+                    <div class="col-2"><a class="br-item header" href="javascript:void(0)"><div class="content text-bold">Serviços</div></a></div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- =========================================
+         ESTRUTURA HTML DO YBOT
+         ========================================= -->
+    
+    <!-- Botão Flutuante - AGORA COM IMAGEM -->
+    <button id="ybot-trigger" title="Falar com o Ybot">
+        <img src="Logo.png" alt="Ybot Logo" />
+    </button>
+
+    <!-- Janela do Chat -->
+    <div id="ybot-container">
+        <!-- Cabeçalho (Pílula Verde Independente) -->
+        <div id="ybot-header">
+            <div class="title-area">
+                <!-- LOGO E NOME COM IMAGENS -->
+                <img src="Logo.png" alt="Logo" class="logo-icon">
+                <img src="Letra.png" alt="YBOT" class="logo-text">
+            </div>
+            <button class="close-btn" id="ybot-close" title="Fechar Chat"><i class="fas fa-times"></i></button>
+        </div>
+
+        <!-- Corpo Branco (Retângulo Arredondado Independente) -->
+        <div id="ybot-body">
+            <div id="ybot-messages">
+                <!-- Mensagem inicial -->
+                <div class="message bot">Olá! Eu sou o Ybot. Estou aqui para ajudar você com o processo seletivo do IFAM. Pergunte sobre "cursos", "editais" ou "inscrição".</div>
+            </div>
+            <div id="ybot-input-area">
+                <input type="text" id="ybot-input" placeholder="Digite sua dúvida..." />
+                <!-- ÍCONE DE ENVIAR (SETA) -->
+                <button id="ybot-send"><i class="fas fa-arrow-right"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS ORIGINAIS (Agora com caminhos absolutos) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://portal.ifam.edu.br/static/node_modules/@govbr-ds/core/dist/core.min.90623af2b182.js"></script>
+    <script type="text/javascript" src="https://portal.ifam.edu.br/static/js/sidebar.9f246a40421d.js"></script>
+
+    <!-- =========================================
+         SCRIPT DO YBOT (LÓGICA + BLOQUEIO DE LINKS)
+         ========================================= -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // ===============================================
+            // 1. BLOQUEIO DE NAVEGAÇÃO EXTERNA (Apenas cenário)
+            // ===============================================
+            
+            // Pega todos os links da página
+            const allLinks = document.querySelectorAll('a');
+
+            allLinks.forEach(link => {
+                // Se o link NÃO faz parte do Ybot (não está dentro do container ou trigger)
+                if (!link.closest('#ybot-container') && !link.closest('#ybot-trigger')) {
+                    
+                    // Substitui o href original por javascript:void(0)
+                    // Isso remove o comportamento padrão de navegar ou dar refresh
+                    link.setAttribute('href', 'javascript:void(0);');
+                    link.setAttribute('onclick', 'return false;');
+                    
+                    // Adiciona listener extra por segurança
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        // Opcional: console.log("Navegação bloqueada para demonstração");
+                    });
+                }
+            });
+
+            // ===============================================
+            // 2. LÓGICA DO YBOT
+            // ===============================================
+            const trigger = document.getElementById('ybot-trigger');
+            const container = document.getElementById('ybot-container');
+            const closeBtn = document.getElementById('ybot-close');
+            const sendBtn = document.getElementById('ybot-send');
+            const inputField = document.getElementById('ybot-input');
+            const messagesArea = document.getElementById('ybot-messages');
+
+            // Abrir e fechar o chat usando a classe .active
+            trigger.addEventListener('click', () => {
+                container.classList.toggle('active');
+                if (container.classList.contains('active')) {
+                    inputField.focus();
+                }
+            });
+
+            closeBtn.addEventListener('click', () => {
+                container.classList.remove('active');
+            });
+
+            // Função para adicionar mensagem na tela
+            function addMessage(text, sender) {
+                const msgDiv = document.createElement('div');
+                msgDiv.classList.add('message', sender);
+                msgDiv.innerHTML = text;
+                messagesArea.appendChild(msgDiv);
+                messagesArea.scrollTop = messagesArea.scrollHeight;
+            }
+
+            // Função para processar a resposta do Bot
+            function getBotResponse(input) {
+                input = input.toLowerCase();
+
+                if (input.includes('oi') || input.includes('olá') || input.includes('ola')) {
+                    return "Olá! Tudo bem? Como posso ajudar com o IFAM hoje?";
+                } else if (input.includes('curso')) {
+                    return "O IFAM oferece cursos Técnicos (Integrado e Subsequente) e Superiores. Você quer saber sobre quais?";
+                } else if (input.includes('integrado')) {
+                    return "O Ensino Médio Integrado é para quem já terminou o fundamental (9º ano). É o ensino médio junto com o técnico.";
+                } else if (input.includes('subsequente')) {
+                    return "O curso Subsequente é para quem JÁ terminou o ensino médio e quer apenas a formação técnica.";
+                } else if (input.includes('edital') || input.includes('processo')) {
+                    return "O Processo Seletivo 2026 está aberto! Você pode ver os editais na página principal clicando em 'Saiba mais' nos banners.";
+                } else if (input.includes('inscricao') || input.includes('inscrição')) {
+                    return "As inscrições geralmente são feitas pelo site da fundação ou pelo portal do candidato. Verifique o edital específico do seu curso.";
+                } else if (input.includes('obrigado') || input.includes('valeu')) {
+                    return "Por nada! Boa sorte nos estudos! 💚";
+                } else {
+                    return "Desculpe, ainda estou aprendendo. Tente perguntar sobre 'cursos', 'editais', 'integrado' ou 'inscrição'.";
+                }
+            }
+
+            // Enviar mensagem
+            function handleSend() {
+                const text = inputField.value.trim();
+                if (text !== "") {
+                    addMessage(text, 'user');
+                    inputField.value = '';
+
+                    setTimeout(() => {
+                        const response = getBotResponse(text);
+                        addMessage(response, 'bot');
+                    }, 600);
+                }
+            }
+
+            // Eventos de envio
+            sendBtn.addEventListener('click', handleSend);
+            inputField.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') handleSend();
+            });
+        });
+    </script>
+</body>
+</html>
