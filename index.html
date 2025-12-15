@@ -1,49 +1,37 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <!-- REMOVIDO: <base href="..."> para permitir carregar imagens locais (Logo.png/Letra.png) -->
-    
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Instituto Federal do Amazonas - Com Ybot</title>
+    <link rel="icon" type="image/x-icon" href="https://portal.ifam.edu.br/favicon.ico">
 
-    <!-- Fontes e Ícones -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:300,400,500,600,700,800,900&display=swap"/>
     
-    <!-- CSS Original do Site (Agora com caminhos absolutos para não quebrar sem o <base>) -->
     <link rel="stylesheet" href="https://portal.ifam.edu.br/static/rawline/css/rawline.5996be5b672c.css"/>
     <link rel="stylesheet" href="https://portal.ifam.edu.br/static/node_modules/@govbr-ds/core/dist/core.min.27d4e9eae8a4.css" />
     <link rel="stylesheet" href="https://portal.ifam.edu.br/static/css/portal.fdba2194f3f8.css" />
 
     <style>
-        /* Correção forçada original */
         body { overflow-x: hidden; }
         .br-menu.active { display: none; }
 
-        /* Bloqueio visual de links (cursor padrão em vez de mãozinha) para elementos do site fundo */
         a:not(#ybot-container a):not(#ybot-trigger) {
             cursor: default !important;
-            pointer-events: none; /* Garante que não sejam clicáveis */
+            pointer-events: none; 
         }
-        /* Reativar pointer events apenas para mostrar que existe texto, mas sem clique de link */
         .br-header a, .br-footer a, .main-content a {
             pointer-events: auto !important; 
-            cursor: pointer !important; /* Mantém a "mãozinha" para parecer real, mas o JS bloqueia */
+            cursor: pointer !important; 
         }
 
-        /* =========================================
-           ESTILOS DO YBOT (POLIDO & INDEPENDENTE)
-           ========================================= */
-        
-        /* Botão Flutuante (O ícone do robô) */
         #ybot-trigger {
             position: fixed;
             bottom: 25px;
             right: 25px;
             width: 70px;
             height: 70px;
-            /* MUDANÇA: Fundo branco e borda verde */
             background-color: white; 
             border: 2px solid #008000;
             border-radius: 50%;
@@ -55,7 +43,6 @@
             align-items: center;
             justify-content: center;
             overflow: hidden; 
-            /* MUDANÇA: Aumentei o padding para diminuir a logo visualmente */
             padding: 15px; 
         }
 
@@ -71,10 +58,9 @@
             box-shadow: 0 8px 20px rgba(0,0,0,0.4);
         }
 
-        /* Janela do Chat - Container Principal */
         #ybot-container {
             position: fixed;
-            bottom: 110px; /* Acima do botão */
+            bottom: 110px; 
             right: 25px;
             width: 360px;
             height: 550px;
@@ -84,13 +70,10 @@
             flex-direction: column;
             font-family: 'Raleway', sans-serif;
             border: none;
-            
-            /* Estado Inicial: Invisível */
             opacity: 0;
             visibility: hidden;
             transform: translateY(20px) scale(0.95);
             pointer-events: none; 
-            
             transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
         }
 
@@ -101,7 +84,6 @@
             pointer-events: all;
         }
 
-        /* Cabeçalho do Chat - Pílula Verde */
         #ybot-header {
             background-color: #008000;
             color: white;
@@ -113,36 +95,31 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
             margin-bottom: 15px;
             flex-shrink: 0;
-            height: 70px; /* Altura fixa para alinhar logos */
+            height: 70px; 
         }
 
-        /* MUDANÇA: Área das imagens com fundo branco (Pílula) */
         #ybot-header .title-area {
             display: flex;
             align-items: center;
             gap: 10px;
             height: auto;
-            background-color: white; /* Fundo branco */
-            padding: 5px 15px;       /* Espaçamento interno */
-            border-radius: 30px;     /* Formato pílula */
+            background-color: white; 
+            padding: 5px 15px;       
+            border-radius: 30px;     
             box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
         }
 
-        /* Ajuste das Imagens no Header (Diminuídas) */
         #ybot-header .logo-icon {
-            /* MUDANÇA: Diminuída de 45px para 35px */
             height: 35px; 
             width: auto;
         }
 
         #ybot-header .logo-text {
-            /* MUDANÇA: Diminuída de 35px para 25px */
             height: 25px; 
             width: auto;
             margin-top: 2px; 
         }
 
-        /* Botão Fechar */
         #ybot-header .close-btn {
             background: transparent;
             border: 2px solid rgba(255,255,255,0.3);
@@ -167,7 +144,6 @@
             transform: rotate(90deg);
         }
 
-        /* Wrapper do Corpo Branco */
         #ybot-body {
             background: white;
             flex: 1;
@@ -178,7 +154,6 @@
             overflow: hidden; 
         }
 
-        /* Área das Mensagens */
         #ybot-messages {
             flex: 1;
             padding: 20px;
@@ -191,7 +166,6 @@
             gap: 15px;
         }
 
-        /* Balões de Mensagem */
         .message {
             max-width: 80%;
             padding: 12px 18px;
@@ -218,7 +192,6 @@
             border-bottom-right-radius: 4px;
         }
 
-        /* Área de Input */
         #ybot-input-area {
             padding: 15px 20px;
             border-top: 1px solid #f0f0f0;
@@ -265,7 +238,6 @@
             transform: scale(1.05);
         }
 
-        /* Scrollbar */
         #ybot-messages::-webkit-scrollbar {
             width: 6px;
         }
@@ -274,7 +246,6 @@
             border-radius: 3px;
         }
 
-        /* Responsividade */
         @media (max-width: 480px) {
             #ybot-container {
                 width: 90%;
@@ -289,7 +260,6 @@
 <body class="template-default">
 
     <div class="template-base">
-        <!-- HEADER ORIGINAL -->
         <header class="br-header mb-4" id="header" data-sticky="data-sticky">
             <div class="container-fluid">
                 <div class="header-top">
@@ -325,7 +295,6 @@
             </div>
         </header>
 
-        <!-- MAIN CONTENT ORIGINAL -->
         <main class="d-flex flex-fill mb-5" id="main">
             <div class="container-fluid d-flex mt-10" style="width: 90%;">
                 
@@ -375,7 +344,6 @@
                             <div class="banner-container">
                                 <div class="container-fluid px-0">
                                     <div class="banner-image-wrapper">
-                                        <!-- CAMINHO ABSOLUTO -->
                                         <img alt="" class="img-fluid banner-image" style="width:100%" src="https://portal.ifam.edu.br/media/images/2_rR3cj23.format-jpeg.width-1920.jpg">
                                     </div>
                                 </div>
@@ -402,7 +370,6 @@
                                     <div class="my-1">
                                         <div class="linked-image-wrapper">
                                             <a href="javascript:void(0);" class="d-block">
-                                                <!-- CAMINHO ABSOLUTO -->
                                                 <img alt="Botão Novas Chamadas" class="img-fluid rounded w-100" src="https://portal.ifam.edu.br/media/images/botao_-_novas_chamadas.format-jpeg.jpg">
                                             </a>
                                         </div>
@@ -414,7 +381,6 @@
                                     </div>
                                     <div class="my-1">
                                         <div class="linked-image-wrapper">
-                                            <!-- CAMINHO ABSOLUTO -->
                                             <img alt="Logo Integrado" class="img-fluid rounded w-100" src="https://portal.ifam.edu.br/media/images/2_baY3k2v.format-jpeg.jpg">
                                         </div>
                                         <div class="py-2 w-100">
@@ -427,7 +393,6 @@
                                 <div class="col-12 col-md-6">
                                     <div class="my-1">
                                         <div class="linked-image-wrapper">
-                                            <!-- CAMINHO ABSOLUTO -->
                                             <img alt="Logo PSD" class="img-fluid rounded w-100" src="https://portal.ifam.edu.br/media/images/6_3Q6frLr.format-jpeg.jpg">
                                         </div>
                                         <div class="py-2 w-100">
@@ -438,7 +403,6 @@
                                     </div>
                                     <div class="my-1">
                                         <div class="linked-image-wrapper">
-                                            <!-- CAMINHO ABSOLUTO -->
                                             <img alt="Logo Proeja" class="img-fluid rounded w-100" src="https://portal.ifam.edu.br/media/images/3_LObep8P.format-jpeg.jpg">
                                         </div>
                                         <div class="py-2 w-100">
@@ -467,11 +431,9 @@
             </div>
         </main>
 
-        <!-- FOOTER ORIGINAL -->
         <footer class="br-footer">
             <div class="container-lg">
                 <div class="logo">
-                    <!-- CAMINHO ABSOLUTO -->
                     <img alt="logo-footer" src="https://portal.ifam.edu.br/media/original_images/2025.ago_br_govfederal_manual-de-uso_v1.2-4.webp" style="max-width: 180px;" />
                 </div>
                 <div class="br-list horizontal">
@@ -482,79 +444,51 @@
         </footer>
     </div>
 
-    <!-- =========================================
-         ESTRUTURA HTML DO YBOT
-         ========================================= -->
-    
-    <!-- Botão Flutuante - AGORA COM IMAGEM -->
     <button id="ybot-trigger" title="Falar com o Ybot">
-        <img src="dfdf.png" alt="Ybot Logo" />
+        <img src="Logo.png" alt="Ybot Logo" />
     </button>
 
-    <!-- Janela do Chat -->
     <div id="ybot-container">
-        <!-- Cabeçalho (Pílula Verde Independente) -->
         <div id="ybot-header">
             <div class="title-area">
-                <!-- LOGO E NOME COM IMAGENS -->
-                <img src="dfdf.png" alt="Logo" class="logo-icon">
+                <img src="Logo.png" alt="Logo" class="logo-icon">
                 <img src="Letra.png" alt="YBOT" class="logo-text">
             </div>
             <button class="close-btn" id="ybot-close" title="Fechar Chat"><i class="fas fa-times"></i></button>
         </div>
 
-        <!-- Corpo Branco (Retângulo Arredondado Independente) -->
         <div id="ybot-body">
             <div id="ybot-messages">
-                <!-- Mensagem inicial -->
                 <div class="message bot">Olá! Eu sou o Ybot. Estou aqui para ajudar você com o processo seletivo do IFAM. Pergunte sobre "cursos", "editais" ou "inscrição".</div>
             </div>
             <div id="ybot-input-area">
                 <input type="text" id="ybot-input" placeholder="Digite sua dúvida..." />
-                <!-- ÍCONE DE ENVIAR (SETA) -->
                 <button id="ybot-send"><i class="fas fa-arrow-right"></i></button>
             </div>
         </div>
     </div>
 
-    <!-- SCRIPTS ORIGINAIS (Agora com caminhos absolutos) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script src="https://portal.ifam.edu.br/static/node_modules/@govbr-ds/core/dist/core.min.90623af2b182.js"></script>
     <script type="text/javascript" src="https://portal.ifam.edu.br/static/js/sidebar.9f246a40421d.js"></script>
 
-    <!-- =========================================
-         SCRIPT DO YBOT (LÓGICA + BLOQUEIO DE LINKS)
-         ========================================= -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // ===============================================
-            // 1. BLOQUEIO DE NAVEGAÇÃO EXTERNA (Apenas cenário)
-            // ===============================================
-            
-            // Pega todos os links da página
             const allLinks = document.querySelectorAll('a');
 
             allLinks.forEach(link => {
-                // Se o link NÃO faz parte do Ybot (não está dentro do container ou trigger)
                 if (!link.closest('#ybot-container') && !link.closest('#ybot-trigger')) {
                     
-                    // Substitui o href original por javascript:void(0)
-                    // Isso remove o comportamento padrão de navegar ou dar refresh
                     link.setAttribute('href', 'javascript:void(0);');
                     link.setAttribute('onclick', 'return false;');
                     
-                    // Adiciona listener extra por segurança
                     link.addEventListener('click', function(e) {
                         e.preventDefault();
                         e.stopPropagation();
-                        // Opcional: console.log("Navegação bloqueada para demonstração");
                     });
                 }
             });
 
-            // ===============================================
-            // 2. LÓGICA DO YBOT
-            // ===============================================
             const trigger = document.getElementById('ybot-trigger');
             const container = document.getElementById('ybot-container');
             const closeBtn = document.getElementById('ybot-close');
@@ -562,7 +496,6 @@
             const inputField = document.getElementById('ybot-input');
             const messagesArea = document.getElementById('ybot-messages');
 
-            // Abrir e fechar o chat usando a classe .active
             trigger.addEventListener('click', () => {
                 container.classList.toggle('active');
                 if (container.classList.contains('active')) {
@@ -574,7 +507,6 @@
                 container.classList.remove('active');
             });
 
-            // Função para adicionar mensagem na tela
             function addMessage(text, sender) {
                 const msgDiv = document.createElement('div');
                 msgDiv.classList.add('message', sender);
@@ -583,7 +515,6 @@
                 messagesArea.scrollTop = messagesArea.scrollHeight;
             }
 
-            // Função para processar a resposta do Bot
             function getBotResponse(input) {
                 input = input.toLowerCase();
 
@@ -606,7 +537,6 @@
                 }
             }
 
-            // Enviar mensagem
             function handleSend() {
                 const text = inputField.value.trim();
                 if (text !== "") {
@@ -620,7 +550,6 @@
                 }
             }
 
-            // Eventos de envio
             sendBtn.addEventListener('click', handleSend);
             inputField.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') handleSend();
