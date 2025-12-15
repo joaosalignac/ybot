@@ -19,10 +19,8 @@
 
         a:not(#ybot-container a):not(#ybot-trigger) {
             cursor: default !important;
-            pointer-events: none; 
         }
         .br-header a, .br-footer a, .main-content a {
-            pointer-events: auto !important; 
             cursor: pointer !important; 
         }
 
@@ -478,13 +476,10 @@
 
             allLinks.forEach(link => {
                 if (!link.closest('#ybot-container') && !link.closest('#ybot-trigger')) {
-                    
                     link.setAttribute('href', 'javascript:void(0);');
-                    link.setAttribute('onclick', 'return false;');
                     
                     link.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
+                        e.preventDefault(); 
                     });
                 }
             });
@@ -496,16 +491,30 @@
             const inputField = document.getElementById('ybot-input');
             const messagesArea = document.getElementById('ybot-messages');
 
-            trigger.addEventListener('click', () => {
+            trigger.addEventListener('click', (e) => {
+                e.stopPropagation(); 
                 container.classList.toggle('active');
                 if (container.classList.contains('active')) {
                     inputField.focus();
                 }
             });
 
-            closeBtn.addEventListener('click', () => {
+            closeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
                 container.classList.remove('active');
             });
+
+            container.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+
+            document.addEventListener('click', function(event) {
+                if (container.classList.contains('active')) {
+                    if (!container.contains(event.target) && !trigger.contains(event.target)) {
+                        container.classList.remove('active');
+                    }
+                }
+            }, { capture: true });
 
             function addMessage(text, sender) {
                 const msgDiv = document.createElement('div');
